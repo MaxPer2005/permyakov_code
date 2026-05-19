@@ -36,11 +36,11 @@ Because the modified popcount sequence converges strictly faster than the bit-le
 The charts below visualize the structural overhead (metadata bits excluding the raw binary value of $N$) as the number grows up to $2^{60}$.
 
 **1. Best Case ($N = 2^k$):** The number contains a single `1` bit.
-![Best Case](best_case.svg)
+![Best Case](docs/best_case.svg)
 *While Elias Omega overhead grows logarithmically, Permyakov Code overhead remains perfectly constant at 3 bits.*
 
 **2. Worst Case ($N = 2^k - 1$):** All bits are `1`.
-![Worst Case](worst_case.svg)
+![Worst Case](docs/worst_case.svg)
 *Even in its absolute worst-case scenario, the Permyakov Code overhead never exceeds Elias Omega.*
 
 ---
