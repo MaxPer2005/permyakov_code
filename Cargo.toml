@@ -2,5 +2,9 @@
 name = "permyakov_code"
 version = "0.1.0"
 edition = "2024"
+description = "Popcount-based universal code that strictly dominates Elias Omega for integer compression."
+repository = "https://github.com/MaxPer2005/permyakov_code"
+keywords = ["compression", "universal-codes", "integer-compression", "information-theory"]
+license = "MIT"
 
 [dependencies]

@@ -22,11 +22,13 @@ To solve the inherent issue of trailing zeros when decoding by popcount (because
 
 ## Theoretical Dominance
 
+**Permyakov Code strictly dominates Elias omega: overhead is always ≤ omega, with equality only for $N = 2^k - 1$.**
+
 The fundamental property of the Permyakov Code is that its metadata overhead is driven by the Hamming weight (`popcount`) rather than the bit-length (`log2`). For any integer $N$, the following strict inequality holds:
 
 $$ \text{popcount}(N) \leq \lfloor\log_2 N\rfloor + 1 $$
 
-Equality is achieved *only* when $N = 2^k - 1$ (all bits are `1`). For all other values, the popcount sequence converges strictly faster than the bit-length sequence used by Elias Omega. This mathematical property guarantees that Permyakov Code **strictly dominates** Elias Omega in terms of structural overhead.
+Because the popcount sequence converges strictly faster than the bit-length sequence used by Elias Omega for the vast majority of integers, the structural overhead is substantially reduced.
 
 ### Best Case vs Worst Case Overhead
 The charts below visualize the structural overhead (metadata bits excluding the raw binary value of $N$) as the number grows up to $2^{60}$.
