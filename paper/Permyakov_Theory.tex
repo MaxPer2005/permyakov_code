@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage{hyperref}
 \usepackage{geometry}
 \geometry{a4paper, margin=1in}
@@ -51,7 +52,7 @@ We can observe this theoretical dominance by plotting the structural metadata ov
 
 When a number is a power of 2, it contains exactly one $1$ bit. Consequently, its popcount is $1$. The Permyakov Code overhead collapses instantly into its absolute minimum of 3 bits (a 2-bit prefix \texttt{01} and a 1-bit terminator \texttt{1}).
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     % In pdflatex, SVG needs to be converted. Using PDF placeholder approach.
     % We will convert SVG to PDF for LaTeX compilation.
@@ -63,7 +64,7 @@ When a number is a power of 2, it contains exactly one $1$ bit. Consequently, it
 
 In the absolute worst-case sequence, all bits in the raw binary representation are set to $1$. This forces the popcount to be equal to the bit-length. However, as demonstrated in Figure 2, the structural overhead of the Permyakov Code remains strictly bound by the Elias Omega overhead. At no point does the metadata cost of the Permyakov Code exceed that of its classical counterpart, maintaining perfect parity even in the most adversarial condition.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{../assets/worst_case.pdf}
     \caption{Worst Case: $N = 2^k - 1$. Even in its mathematically proven worst case, the Permyakov Code line flawlessly aligns with or drops below the Elias Omega line, confirming strict dominance.}
