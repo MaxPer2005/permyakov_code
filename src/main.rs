@@ -6,7 +6,7 @@ fn encode_permyakov(n: u64) -> Vec<bool> {
     let mut blocks = Vec::new();
     while current > 3 {
         blocks.push(current);
-        current = current.count_ones() as u64;
+        current = (current.count_ones() as u64) - 1;
     }
     let mut bits = Vec::new();
     bits.push((current >> 1) & 1 == 1);

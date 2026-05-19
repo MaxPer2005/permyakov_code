@@ -19,14 +19,14 @@ def popcount_overhead(n):
     while current > 3:
         blocks.append(current)
         if hasattr(int, 'bit_count'):
-            current = current.bit_count()
+            current = current.bit_count() - 1
         else:
-            current = bin(current).count('1')
+            current = bin(current).count('1') - 1
             
-    bits = 2
+    bits = 2 # base is 0, 1, 2, 3
     for b in blocks:
         bits += b.bit_length()
-    bits += 1
+    bits += 1 # terminator
     return bits - raw_len
 
 def generate_svg(filename, title, data_omega, data_permyakov, x_labels, max_y):
