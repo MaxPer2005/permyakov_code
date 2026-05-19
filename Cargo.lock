@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "popcount_omega"
+name = "permyakov_code"
 version = "0.1.0"
