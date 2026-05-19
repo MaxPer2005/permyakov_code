@@ -20,11 +20,30 @@ To solve the inherent issue of trailing zeros when decoding by popcount (because
 3. The value we just read becomes the required number of `1`s for the *next* block.
 4. Repeat until you hit the terminator bit `1`.
 
+## Theoretical Dominance
+
+The fundamental property of the Permyakov Code is that its metadata overhead is driven by the Hamming weight (`popcount`) rather than the bit-length (`log2`). For any integer $N$, the following strict inequality holds:
+
+$$ \text{popcount}(N) \leq \lfloor\log_2 N\rfloor + 1 $$
+
+Equality is achieved *only* when $N = 2^k - 1$ (all bits are `1`). For all other values, the popcount sequence converges strictly faster than the bit-length sequence used by Elias Omega. This mathematical property guarantees that Permyakov Code **strictly dominates** Elias Omega in terms of structural overhead.
+
+### Best Case vs Worst Case Overhead
+The charts below visualize the structural overhead (metadata bits excluding the raw binary value of $N$) as the number grows up to $2^{60}$.
+
+**1. Best Case ($N = 2^k$):** The number contains a single `1` bit.
+![Best Case](best_case.svg)
+*While Elias Omega overhead grows logarithmically, Permyakov Code overhead remains perfectly constant at 3 bits.*
+
+**2. Worst Case ($N = 2^k - 1$):** All bits are `1`.
+![Worst Case](worst_case.svg)
+*Even in its absolute worst-case scenario, the Permyakov Code overhead never exceeds Elias Omega.*
+
 ---
 
 ## Benchmarks
 
-### 1. Permyakov Codes vs Elias Omega (Overhead)
+### 1. Permyakov Codes vs Elias Omega (General Distribution)
 When encoding numbers from 1 to 1,000,000, Permyakov Codes provide significant savings in structural overhead compared to standard Elias Omega.
 
 | Metric | Permyakov Code | Elias Omega |
