@@ -61,7 +61,7 @@ When a number is a power of 2, it contains exactly one $1$ bit. Consequently, it
 
 \subsection{Worst Case Scenario ($N = 2^k - 1$)}
 
-In the absolute worst-case sequence, all bits in the raw binary representation are set to $1$. This forces the popcount to be equal to the bit-length.
+In the absolute worst-case sequence, all bits in the raw binary representation are set to $1$. This forces the popcount to be equal to the bit-length. However, as demonstrated in Figure 2, the structural overhead of the Permyakov Code remains strictly bound by the Elias Omega overhead. At no point does the metadata cost of the Permyakov Code exceed that of its classical counterpart, maintaining perfect parity even in the most adversarial condition.
 
 \begin{figure}[h]
     \centering
