@@ -387,4 +387,96 @@ fn main() {
         println!("{:<6} | {:<12} | {:<10} | {:<12} | {:<10} (P is {:.2}x smaller)", 
                  g, p_total_bits, p_time_str, v_total_bits, v_time_str, size_ratio);
     }
+    
+    run_adaptive_permutation_benchmark();
+}
+
+fn run_adaptive_permutation_benchmark() {
+    println!("\n=== Adaptive Permutation of Hot Elements (Zipf 80/20) ===");
+    println!("Simulating G=16, 4 maximum sorted runs (2 bits overhead).");
+    println!("Top 3 elements receive 80% of queries, randomly distributed in the block.\n");
+    
+    let g = 16;
+    let n_blocks = 10_000;
+    let mut rng = Rng { state: 12345 };
+    
+    let mut total_baseline_reads = 0.0;
+    let mut total_permuted_reads = 0.0;
+    
+    for _ in 0..n_blocks {
+        // 1. Assign frequencies
+        let mut freqs = vec![0.20 / 13.0; g]; // Cold elements
+        
+        let mut hot_indices = Vec::new();
+        while hot_indices.len() < 3 {
+            let idx = (rng.next_u32() % (g as u32)) as usize;
+            if !hot_indices.contains(&idx) {
+                hot_indices.push(idx);
+                freqs[idx] = 0.80 / 3.0; // Hot elements
+            }
+        }
+        
+        // 2. Baseline expected reads (no permutation)
+        let mut baseline_expected = 0.0;
+        for k in 0..g {
+            baseline_expected += freqs[k] * (k as f64 + 1.0);
+        }
+        total_baseline_reads += baseline_expected;
+        
+        // 3. Find optimal partition into <= 4 runs
+        let mut best_expected = baseline_expected; // m = 1
+        
+        // helper to compute expected reads for a set of split points
+        let compute_expected = |splits: &[usize]| -> f64 {
+            let mut expected = 0.0;
+            let mut extended_splits = vec![0];
+            extended_splits.extend_from_slice(splits);
+            extended_splits.push(g);
+            
+            for i in 0..splits.len() + 1 {
+                let s_i = extended_splits[i];
+                let s_next = extended_splits[i+1];
+                for k in s_i..s_next {
+                    // Physical index formula: G - s_{i+1} + k - s_i
+                    let p_k = g - s_next + k - s_i;
+                    expected += freqs[k] * (p_k as f64 + 1.0);
+                }
+            }
+            expected
+        };
+        
+        // m = 2 (1 split)
+        for s1 in 1..g {
+            let exp = compute_expected(&[s1]);
+            if exp < best_expected { best_expected = exp; }
+        }
+        
+        // m = 3 (2 splits)
+        for s1 in 1..g {
+            for s2 in (s1 + 1)..g {
+                let exp = compute_expected(&[s1, s2]);
+                if exp < best_expected { best_expected = exp; }
+            }
+        }
+        
+        // m = 4 (3 splits)
+        for s1 in 1..g {
+            for s2 in (s1 + 1)..g {
+                for s3 in (s2 + 1)..g {
+                    let exp = compute_expected(&[s1, s2, s3]);
+                    if exp < best_expected { best_expected = exp; }
+                }
+            }
+        }
+        
+        total_permuted_reads += best_expected;
+    }
+    
+    let avg_baseline = total_baseline_reads / (n_blocks as f64);
+    let avg_permuted = total_permuted_reads / (n_blocks as f64);
+    let speedup = avg_baseline / avg_permuted;
+    
+    println!("Average reads per query (Baseline)   : {:.2}", avg_baseline);
+    println!("Average reads per query (Permuted)   : {:.2}", avg_permuted);
+    println!("Speedup (Reads reduction)            : {:.2}x", speedup);
 }
