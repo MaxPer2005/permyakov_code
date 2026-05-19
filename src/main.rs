@@ -1,4 +1,4 @@
-fn encode_popcount(n: u64) -> Vec<bool> {
+fn encode_permyakov(n: u64) -> Vec<bool> {
     if n == 0 {
         panic!("Only positive integers are supported");
     }
@@ -34,10 +34,10 @@ fn varint_bytes(n: u64) -> u64 {
 
 fn run_benchmark(deltas: &[u64], benchmark_name: &str) {
     println!("=== {} ===", benchmark_name);
-    let mut total_popcount_bits: u64 = 0;
+    let mut total_permyakov_bits: u64 = 0;
     let mut total_varint_bits: u64 = 0;
     
-    let mut popcount_sizes = Vec::with_capacity(deltas.len());
+    let mut permyakov_sizes = Vec::with_capacity(deltas.len());
     let mut varint_sizes_bytes = Vec::with_capacity(deltas.len());
     
     for &d in deltas {
@@ -45,25 +45,25 @@ fn run_benchmark(deltas: &[u64], benchmark_name: &str) {
         // Standard practice in inverted indexes is to encode delta + 1.
         let val = d + 1;
         
-        let p_len = encode_popcount(val).len() as u64;
-        popcount_sizes.push(p_len);
-        total_popcount_bits += p_len;
+        let p_len = encode_permyakov(val).len() as u64;
+        permyakov_sizes.push(p_len);
+        total_permyakov_bits += p_len;
         
         let v_bytes = varint_bytes(val);
         varint_sizes_bytes.push(v_bytes);
         total_varint_bits += v_bytes * 8;
     }
     
-    println!("  Popcount Data: {:>10} bits", total_popcount_bits);
+    println!("  Permyakov Data: {:>10} bits", total_permyakov_bits);
     println!("  Varint Data  : {:>10} bits", total_varint_bits);
     
     let n_group = 8;
     
-    // --- Popcount Index ---
-    let mut popcount_index_bits = 0;
+    // --- Permyakov Index ---
+    let mut permyakov_index_bits = 0;
     let mut p_offsets = Vec::new();
     let mut current_p_offset = 0;
-    for &sz in &popcount_sizes {
+    for &sz in &permyakov_sizes {
         p_offsets.push(current_p_offset);
         current_p_offset += sz;
     }
@@ -79,12 +79,12 @@ fn run_benchmark(deltas: &[u64], benchmark_name: &str) {
         let mut next_p_offsets = Vec::new();
         let mut off = 0;
         for &val in &next_level_data {
-            let encoded_len = encode_popcount(val + 1).len() as u64;
+            let encoded_len = encode_permyakov(val + 1).len() as u64;
             level_bits += encoded_len;
             next_p_offsets.push(off);
             off += encoded_len;
         }
-        popcount_index_bits += level_bits;
+        permyakov_index_bits += level_bits;
         p_offsets = next_p_offsets;
     }
     
@@ -117,24 +117,24 @@ fn run_benchmark(deltas: &[u64], benchmark_name: &str) {
         v_offsets = next_v_offsets;
     }
     
-    println!("  Popcount Index Overhead : {:>10} bits", popcount_index_bits);
+    println!("  Permyakov Index Overhead : {:>10} bits", permyakov_index_bits);
     println!("  Varint Index Overhead   : {:>10} bits", varint_index_bits);
     
-    let total_popcount = total_popcount_bits + popcount_index_bits;
+    let total_permyakov = total_permyakov_bits + permyakov_index_bits;
     let total_varint = total_varint_bits + varint_index_bits;
     
     println!("--------------------------------------------------");
-    println!("  TOTAL Popcount (Data+Idx) : {:>10} bits", total_popcount);
+    println!("  TOTAL Permyakov (Data+Idx) : {:>10} bits", total_permyakov);
     println!("  TOTAL Varint   (Data+Idx) : {:>10} bits", total_varint);
     println!("--------------------------------------------------");
     
-    if total_varint > total_popcount {
-        let diff = total_varint - total_popcount;
-        let ratio = total_varint as f64 / total_popcount as f64;
-        println!("  🏆 Popcount is {:.2}x SMALLER! (Saves {} bits)", ratio, diff);
+    if total_varint > total_permyakov {
+        let diff = total_varint - total_permyakov;
+        let ratio = total_varint as f64 / total_permyakov as f64;
+        println!("  🏆 Permyakov is {:.2}x SMALLER! (Saves {} bits)", ratio, diff);
     } else {
-        let diff = total_popcount - total_varint;
-        let ratio = total_popcount as f64 / total_varint as f64;
+        let diff = total_permyakov - total_varint;
+        let ratio = total_permyakov as f64 / total_varint as f64;
         println!("  ⚖️ Varint is {:.2}x smaller (Saves {} bits)", ratio, diff);
     }
     println!("\n");
